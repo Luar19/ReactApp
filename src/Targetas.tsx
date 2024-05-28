@@ -15,7 +15,7 @@ const Targetas = styled.div<{ index: number; isLast: boolean }>`
   width: 350px;
   height: 200px;
   border: 1px solid #004443;
-  display: flex;
+  display: grid;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;

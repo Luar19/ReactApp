@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
-
-
 interface LoginProps {
   onLogin: () => void;
 }
 
-
-interface Post {
-  login: {
-    username: string;
-    password: string;
-  };
+interface User {
+  username: string;
+  password: string;
 }
 
 const Container = styled.div`
@@ -26,22 +21,23 @@ const Container = styled.div`
   border-radius: 5px;
   background-color: #002e34;
 
-  h6{
+  h6 {
     color: #fff;
-font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
 
-  h2{
+  h2 {
     color: #fff;
-font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
-  
-  `;
-  const LoginForm = styled.form`
+`;
+
+const LoginForm = styled.form`
   display: grid;
   grid-gap: 10px;
-  `
-  const Formularios = styled.input`
+`;
+
+const Formularios = styled.input`
   width: 290px;
   border: none;
   border-radius: 10px;
@@ -49,44 +45,55 @@ font-family: Verdana, Geneva, Tahoma, sans-serif;
   border: 1px solid #ffffff;
   border-radius: 3px;
   outline: none;
-  `;
+`;
 
 const Button = styled.button`
-width: 100%;
-padding: 10px;
-border: none;
-border-radius: 3px;
-background-color: #00c16c;
-color: #fff;
-font-size: 16px;
-cursor: pointer;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  background-color: #00c16c;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
 
-&:hover{
+  &:hover {
     background-color: #005a33;
-}
-`
+  }
+`;
+
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [posts, setPosts] = useState<Post[]>([]);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [apiUsername, setApiUsername] = useState<string>("");
   const [apiPassword, setApiPassword] = useState<string>("");
 
   useEffect(() => {
-    fetch("https://randomuser.me/api/")
-      .then((response) => response.json())
-      .then((data) => {
-        setPosts(data.results);
+    const storedUser = localStorage.getItem("apiUser");
 
-        if (data.results.length > 0) {
-          setApiUsername(data.results[0].login.username);
-          setApiPassword(data.results[0].login.password);
-        }
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+    if (storedUser) {
+      const { username, password } = JSON.parse(storedUser);
+      setApiUsername(username);
+      setApiPassword(password);
+    } else {
+      fetch("https://randomuser.me/api/")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.results.length > 0) {
+            const user: User = {
+              username: data.results[0].login.username,
+              password: data.results[0].login.password,
+            };
+            setApiUsername(user.username);
+            setApiPassword(user.password);
+            localStorage.setItem("apiUser", JSON.stringify(user));
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
   }, []);
 
   const ValidarUsuario = () => {
@@ -95,7 +102,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         onLogin();
         sessionStorage.setItem("dataUser", JSON.stringify({ username, password }));
       } else if (username !== apiUsername) {
-        alert("Usuario no valido");
+        alert("Usuario no válido");
       } else if (password !== apiPassword) {
         alert("Contraseña incorrecta");
       }
@@ -104,10 +111,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
-  
   return (
-    <Container  >
-      <h2 >Login</h2>
+    <Container>
+      <h2>Login</h2>
       <LoginForm>
         <div className="form-group">
           <Formularios
@@ -132,14 +138,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </Button>
       </LoginForm>
       <div className="api-data">
-        {posts.map((post, index) => (
-          <div key={index}>
-            <h6>User: {post.login.username}</h6>
-            <h6>Password: {post.login.password}</h6>
+        {apiUsername && apiPassword && (
+          <div>
+            <h6>User: {apiUsername}</h6>
+            <h6>Password: {apiPassword}</h6>
           </div>
-        ))}
+        )}
       </div>
-    </Container >
+    </Container>
   );
 };
 

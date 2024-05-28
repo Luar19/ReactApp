@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import styled  from "styled-components";
+import styled from "styled-components";
 import Tarjetas from "./Targetas";
 import Tabla from "./Tabla";
-
 
 interface Book {
   title: string;
@@ -23,7 +22,6 @@ interface BookData {
   title: string;
   description: string;
 }
-
 
 const Navigation = styled.nav`
   ul {
@@ -59,60 +57,60 @@ const Navigation = styled.nav`
     background-color: #002e34;
   }
 `;
-const Botones = styled.a`
-width: 15%;
-padding: 10px;
-border: none;
-background-color: #00c16c;
-color: #fff;
-font-size: 11px;
-cursor: pointer;
-position: fixed;
-top: 10px; 
-left: 10px; 
 
-&:hover{
+const Botones = styled.a`
+  width: 15%;
+  padding: 10px;
+  border: none;
+  background-color: #00c16c;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+
+  &:hover {
     background-color: #005a33;
-}
+  }
 `;
 
 const Botones2 = styled.a`
-width: 15%;
-padding: 10px;
-background-color: #00755c;
-color: #fff;
-font-size: 11px;
-cursor: pointer;
-position: fixed;
-top: 50px; 
-left: 10px;
-&:hover{
+  width: 15%;
+  padding: 10px;
+  background-color: #00755c;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  position: fixed;
+  top: 50px;
+  left: 10px;
+
+  &:hover {
     background-color: #005a33;
-}
+  }
 `;
-
-
 
 const Vista: React.FC<WelcomePageProps> = ({ view, onViewChange, onLogout }) => {
   const [bookData, setBookData] = useState<Book[]>([]);
 
   useEffect(() => {
-    fetchBookData();
+    const storedData = localStorage.getItem("libros");
+    if (storedData) {
+      setBookData(JSON.parse(storedData));
+    } else {
+      fetchBookData();
+    }
   }, []);
 
   const fetchBookData = async () => {
     try {
       const response = await axios.get(
-        "https://fakerapi.it/api/v1/texts?_quantity=5&_characters=200&_locale=es_ES"
+        "https://fakerapi.it/api/v1/texts?_quantity=250&_characters=200&_locale=es_ES"
       );
 
-      
       setBookData(response.data.data);
-       localStorage.setItem("libros", JSON.stringify(response.data.data))
-
-     //const targetData = localStorage.getItem("libros");
-
-      
+      localStorage.setItem("libros", JSON.stringify(response.data.data));
     } catch (error) {
       console.error("Error fetching book data:", error);
     }
@@ -124,7 +122,9 @@ const Vista: React.FC<WelcomePageProps> = ({ view, onViewChange, onLogout }) => 
 
   const handleLogout = () => {
     onLogout();
-    sessionStorage.removeItem("dataUser");
+    sessionStorage.removeItem("dataUser" );
+    localStorage.removeItem("libros" );
+    localStorage.removeItem("apiUser" );
   };
 
   return (
@@ -132,14 +132,10 @@ const Vista: React.FC<WelcomePageProps> = ({ view, onViewChange, onLogout }) => 
       <Navigation>
         <ul>
           <li>
-            <Botones onClick={handleViewChange}>
-              Cambiar vista
-            </Botones>
+            <Botones onClick={handleViewChange}>Cambiar vista</Botones>
           </li>
           <li>
-            <Botones2  onClick={handleLogout}>
-              Cerrar Sesión
-            </Botones2>
+            <Botones2 onClick={handleLogout}>Cerrar Sesión</Botones2>
           </li>
         </ul>
       </Navigation>
@@ -148,15 +144,14 @@ const Vista: React.FC<WelcomePageProps> = ({ view, onViewChange, onLogout }) => 
         <CardView>
           {bookData.map((book, index) => (
             <Tarjetas
-            key={index}
-            index={index}
-            total={bookData.length} // Agregar la prop total
-            title={book.title}
-            author={book.author}
-            genre={book.genre}
-            content={book.content}
-          />
-          
+              key={index}
+              index={index}
+              total={bookData.length} // Agregar la prop total
+              title={book.title}
+              author={book.author}
+              genre={book.genre}
+              content={book.content}
+            />
           ))}
         </CardView>
       ) : (
@@ -165,7 +160,6 @@ const Vista: React.FC<WelcomePageProps> = ({ view, onViewChange, onLogout }) => 
     </div>
   );
 };
-
 
 const CardView = styled.div`
   display: grid;
